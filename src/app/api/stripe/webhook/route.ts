@@ -40,13 +40,11 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        // Resolve Firebase UID from email
         let uid: string;
         try {
           const user = await adminAuth.getUserByEmail(email);
           uid = user.uid;
         } catch {
-          // Client may not have a Firebase account yet — create one
           const newUser = await adminAuth.createUser({ email });
           uid = newUser.uid;
         }
