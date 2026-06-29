@@ -12,6 +12,11 @@ export default function PortalPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         router.push('/login?redirect=/portal');
@@ -35,7 +40,9 @@ export default function PortalPage() {
   }, [router]);
 
   async function handleLogout() {
-    await auth.signOut();
+    if (auth) {
+      await auth.signOut();
+    }
     await fetch('/api/auth/session', { method: 'DELETE' });
     router.push('/login');
   }

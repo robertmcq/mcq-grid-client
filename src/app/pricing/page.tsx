@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { PRODUCT_NAMES, PRODUCT_PRICES, PRICE_IDS } from '@/lib/stripe';
+import { PRODUCT_NAMES, PRODUCT_PRICES } from '@/lib/stripe';
 import type { ProductKey } from '@/lib/stripe';
 
 const PRODUCT_DESCRIPTIONS: Record<ProductKey, string> = {

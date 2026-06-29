@@ -40,6 +40,11 @@ export async function POST(req: NextRequest) {
           break;
         }
 
+        if (!adminAuth) {
+          console.warn('Firebase Admin auth unavailable; skipping entitlement grant.');
+          break;
+        }
+
         let uid: string;
         try {
           const user = await adminAuth.getUserByEmail(email);
@@ -91,6 +96,11 @@ export async function POST(req: NextRequest) {
           : (subscription.customer as Stripe.Customer)?.email ?? null;
 
         if (email) {
+          if (!adminAuth) {
+            console.warn('Firebase Admin auth unavailable; skipping entitlement revoke.');
+            break;
+          }
+
           try {
             const user = await adminAuth.getUserByEmail(email);
             await revokeEntitlement(user.uid);

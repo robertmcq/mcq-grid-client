@@ -18,6 +18,10 @@ export default function LoginPage() {
     setError('');
 
     try {
+      if (!auth) {
+        throw new Error('Authentication is unavailable right now.');
+      }
+
       const credential = await signInWithEmailAndPassword(auth, email, password);
       const idToken = await credential.user.getIdToken();
 

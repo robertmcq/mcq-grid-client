@@ -10,6 +10,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (!adminAuth) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const decoded = await adminAuth.verifySessionCookie(sessionCookie, true);
     const entitlement = await getEntitlement(decoded.uid);
 

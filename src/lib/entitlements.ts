@@ -16,6 +16,10 @@ export interface ClientEntitlement {
 }
 
 export async function grantEntitlement(data: ClientEntitlement): Promise<void> {
+  if (!adminDb) {
+    return;
+  }
+
   await adminDb
     .collection('entitlements')
     .doc(data.uid)
@@ -25,12 +29,20 @@ export async function grantEntitlement(data: ClientEntitlement): Promise<void> {
 export async function getEntitlement(
   uid: string
 ): Promise<ClientEntitlement | null> {
+  if (!adminDb) {
+    return null;
+  }
+
   const snap = await adminDb.collection('entitlements').doc(uid).get();
   if (!snap.exists) return null;
   return snap.data() as ClientEntitlement;
 }
 
 export async function revokeEntitlement(uid: string): Promise<void> {
+  if (!adminDb) {
+    return;
+  }
+
   await adminDb
     .collection('entitlements')
     .doc(uid)

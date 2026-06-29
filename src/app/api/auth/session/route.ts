@@ -8,6 +8,10 @@ export async function POST(req: NextRequest) {
   try {
     const { idToken } = await req.json() as { idToken: string };
 
+    if (!adminAuth) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const decoded = await adminAuth.verifyIdToken(idToken);
     if (!decoded) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
