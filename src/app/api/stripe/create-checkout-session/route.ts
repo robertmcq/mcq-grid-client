@@ -1,27 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, TIER_PRICE_IDS, ServiceTier } from '@/lib/stripe';
+import { stripe, PRICE_IDS, CHECKOUT_MODE, PRODUCT_NAMES, ProductKey } from '@/lib/stripe';
 
 export async function POST(req: NextRequest) {
   try {
-    const { tier, customerEmail, engagementId } = await req.json() as {
-      tier: ServiceTier;
+    const { product, customerEmail, engagementId } = await req.json() as {
+      product: ProductKey;
       customerEmail: string;
-      engagementId: string;
+      engagementId?: string;
     };
 
-    const priceId = TIER_PRICE_IDS[tier];
+    const priceId = PRICE_IDS[product];
     if (!priceId) {
-      return NextResponse.json({ error: 'Invalid service tier' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid product key' }, { status: 400 });
     }
 
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: CHECKOUT_MODE[product],
       payment_method_types: ['card'],
       customer_email: customerEmail,
       line_items: [{ price: priceId, quantity: 1 }],
       metadata: {
-        engagement_id: engagementId,
-        tier,
+        product_key: product,
+        product_name: PRODUCT_NAMES[product],
+        engagement_id: engagementId ?? '',
         governance_authority: 'MCQ-GOVERNANCE-BLUEPRINT-001-v1.0',
       },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/portal?session_id={CHECKOUT_SESSION_ID}`,
