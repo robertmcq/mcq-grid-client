@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, PRICE_IDS, ProductKey } from '@/lib/stripe';
+import { getStripe, PRICE_IDS, ProductKey } from '@/lib/stripe';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,6 +17,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    const stripe = getStripe();
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',

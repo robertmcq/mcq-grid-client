@@ -1,10 +1,22 @@
 import Stripe from 'stripe';
 
-// Server-side Stripe instance (never expose secret key to client)
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24.acacia',
-  typescript: true,
-});
+// Lazy singleton — initialized on first request, not at module load
+// Prevents Next.js build-time crash when STRIPE_SECRET_KEY is not available
+let _stripe: Stripe | null = null;
+
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+    }
+    _stripe = new Stripe(key, {
+      apiVersion: '2025-02-24.acacia',
+      typescript: true,
+    });
+  }
+  return _stripe;
+}
 
 // Live Stripe Product IDs
 export const PRODUCT_IDS = {
@@ -17,11 +29,11 @@ export const PRODUCT_IDS = {
 
 // Live Stripe Price IDs — verified 2026-06-29
 export const PRICE_IDS = {
-  GRID_CONTROL_ANALYSIS:      process.env.STRIPE_T1_PRICE_ID!,      // $2,997.00
-  LANE01_CORE_BUILD:          process.env.STRIPE_T2_PRICE_ID!,      // $15,000.00
-  LANE01_INTEGRATED_BUILD:    process.env.STRIPE_T3_PRICE_ID!,      // $25,000.00
-  LANE01_ENTERPRISE_BUILD:    process.env.STRIPE_T4_PRICE_ID!,      // $37,500.00
-  LAW_FIRM_OPS_TEMPLATE:      process.env.STRIPE_TEMPLATE_PRICE_ID!, // $47.00
+  GRID_CONTROL_ANALYSIS:      process.env.STRIPE_T1_PRICE_ID ?? '',
+  LANE01_CORE_BUILD:          process.env.STRIPE_T2_PRICE_ID ?? '',
+  LANE01_INTEGRATED_BUILD:    process.env.STRIPE_T3_PRICE_ID ?? '',
+  LANE01_ENTERPRISE_BUILD:    process.env.STRIPE_T4_PRICE_ID ?? '',
+  LAW_FIRM_OPS_TEMPLATE:      process.env.STRIPE_TEMPLATE_PRICE_ID ?? '',
 } as const;
 
 export type ProductKey = keyof typeof PRICE_IDS;
