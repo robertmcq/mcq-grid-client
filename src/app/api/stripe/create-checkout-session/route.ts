@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, PRICE_IDS, CHECKOUT_MODE, PRODUCT_NAMES, ProductKey } from '@/lib/stripe';
+import { getStripe, PRICE_IDS, CHECKOUT_MODE, PRODUCT_NAMES, ProductKey } from '@/lib/stripe';
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid product key' }, { status: 400 });
     }
 
+    const stripe = getStripe();
     const session = await stripe.checkout.sessions.create({
       mode: CHECKOUT_MODE[product],
       payment_method_types: ['card'],
